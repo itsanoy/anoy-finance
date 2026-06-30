@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anoy Finance</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#111;
+color:#fff;
+padding:18px;
+}
+
+h1{
+font-size:32px;
+margin-bottom:18px;
+}
+
+.card{
+background:#1f1f1f;
+border-radius:16px;
+padding:18px;
+margin-bottom:18px;
+box-shadow:0 0 15px rgba(0,0,0,.3);
+}
+
+.title{
+font-size:24px;
+font-weight:bold;
+margin-bottom:12px;
+}
+
+.info{
+font-size:22px;
+margin:10px 0;
+}
+
+.green{
+color:#35d07f;
+}
+
+.red{
+color:#ff5d5d;
+}
+
+input,select{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+margin-top:10px;
+font-size:18px;
+}
+
+button{
+width:100%;
+padding:15px;
+margin-top:14px;
+background:#f4c542;
+border:none;
+border-radius:12px;
+font-size:20px;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+opacity:.9;
+}
+
+.item{
+background:#2b2b2b;
+padding:14px;
+border-radius:12px;
+margin-top:12px;
+}
+
+.item-top{
+display:flex;
+justify-content:space-between;
+font-weight:bold;
+margin-bottom:6px;
+}
+
+.small{
+font-size:14px;
+color:#bbb;
+}
+
+.delete{
+margin-top:10px;
+background:#ff4444;
+color:white;
+padding:8px;
+border:none;
+border-radius:8px;
+font-size:15px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>💰 Anoy Finance</h1>
+
+<div class="card">
+
+<div class="title">Dashboard</div>
+
+<div class="info">
+Saldo :
+<b id="saldo">Rp0</b>
+</div>
+
+<div class="info green">
+Pemasukan :
+<b id="income">Rp0</b>
+</div>
+
+<div class="info red">
+Pengeluaran :
+<b id="expense">Rp0</b>
+</div>
+
+</div>
+
+<div class="card">
+
+<select id="jenis">
+
+<option value="income">
+Pemasukan
+</option>
+
+<option value="expense">
+Pengeluaran
+</option>
+
+</select>
+
+<input
+id="ket"
+placeholder="Keterangan">
+
+<input
+id="nominal"
+type="number"
+placeholder="Nominal">
+
+<button onclick="tambah()">
+Tambah Transaksi
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+Riwayat
+</div>
+
+<div id="list">
+
+</div>
+
+</div>
+
+<script>
+
+let data=[];
+  const KEY="anoy_finance_v1";
+
+function rupiah(n){
+return "Rp"+Number(n).toLocaleString("id-ID");
+}
+
+function simpan(){
+localStorage.setItem(KEY,JSON.stringify(data));
+}
+
+function muat(){
+
+const isi=localStorage.getItem(KEY);
+
+if(isi){
+
+data=JSON.parse(isi);
+
+}else{
+
+data=[
+
+{
+jenis:"income",
+ket:"Gaji Mingguan",
+nominal:166000,
+tanggal:"27 Juni 2026"
+},
+
+{
+jenis:"income",
+ket:"Hasil Lembur",
+nominal:50000,
+tanggal:"30 Juni 2026"
+},
+
+{
+jenis:"expense",
+ket:"Top Up FF",
+nominal:1000,
+tanggal:"28 Juni 2026"
+},
+
+{
+jenis:"expense",
+ket:"Rokok",
+nominal:15000,
+tanggal:"30 Juni 2026"
+}
+
+];
+
+simpan();
+
+}
+
+render();
+
+}
+
+function tambah(){
+
+const jenis=document.getElementById("jenis").value;
+
+const ket=document.getElementById("ket").value;
+
+const nominal=parseInt(document.getElementById("nominal").value);
+
+if(!ket||!nominal){
+
+alert("Isi dulu semua.");
+
+return;
+
+}
+
+const tgl=new Date().toLocaleDateString("id-ID");
+
+data.unshift({
+
+jenis,
+
+ket,
+
+nominal,
+
+tanggal:tgl
+
+});
+
+simpan();
+
+render();
+
+document.getElementById("ket").value="";
+
+document.getElementById("nominal").value="";
+
+  }
+  function hapus(index){
+data.splice(index,1);
+simpan();
+render();
+}
+
+function render(){
+
+let pemasukan=0;
+let pengeluaran=0;
+
+for(let d of data){
+
+if(d.jenis=="income"){
+pemasukan+=d.nominal;
+}else{
+pengeluaran+=d.nominal;
+}
+
+}
+
+let saldo=pemasukan-pengeluaran;
+
+document.getElementById("saldo").innerHTML=rupiah(saldo);
+document.getElementById("income").innerHTML=rupiah(pemasukan);
+document.getElementById("expense").innerHTML=rupiah(pengeluaran);
+
+let html="";
+
+data.forEach((d,i)=>{
+
+html+=`
+<div class="item">
+
+<div class="item-top">
+<span>${d.ket}</span>
+<span class="${d.jenis=="income"?"green":"red"}">
+${d.jenis=="income"?"+":"-"} ${rupiah(d.nominal)}
+</span>
+</div>
+
+<div class="small">
+${d.tanggal}
+</div>
+
+<button class="delete" onclick="hapus(${i})">
+Hapus
+</button>
+
+</div>
+`;
+
+});
+
+document.getElementById("list").innerHTML=html;
+
+}
+
+muat();
+
+</script>
+
+</body>
+</html>
