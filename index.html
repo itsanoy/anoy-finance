@@ -321,9 +321,12 @@ ${d.jenis=="income"?"+":"-"} ${rupiah(d.nominal)}
 <div class="small">
 ${d.tanggal}
 </div>
-
+<button onclick="editData(${i})"
+style="background:#3b82f6;color:white;border:none;padding:8px;border-radius:8px;margin-right:8px;">
+✏️ Edit
+</button>
 <button class="delete" onclick="hapus(${i})">
-Hapus
+🗑️ Hapus
 </button>
 
 </div>
@@ -357,6 +360,25 @@ function exportData() {
 
   URL.revokeObjectURL(url);
   }
+function editData(index){
+
+const baruKet = prompt("Keterangan:", data[index].ket);
+
+if(baruKet===null) return;
+
+const baruNominal = prompt("Nominal:", data[index].nominal);
+
+if(baruNominal===null) return;
+
+data[index].ket = baruKet;
+
+data[index].nominal = Number(baruNominal);
+
+simpan();
+
+render();
+
+}
 </script>
 
 </body>
